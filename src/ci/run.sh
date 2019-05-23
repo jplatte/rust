@@ -38,6 +38,7 @@ RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.codegen-units-std=1"
 if [ "$DIST_SRC" = "" ]; then
   RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --disable-dist-src"
 fi
+RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --disable-llvm-assertions"
 
 # If we're deploying artifacts then we set the release channel, otherwise if
 # we're not deploying then we want to be sure to enable all assertions because
@@ -52,26 +53,25 @@ if [ "$DEPLOY$DEPLOY_ALT" = "1" ]; then
   RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.remap-debuginfo"
   RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.debuginfo-level-std=1"
 
-  if [ "$NO_LLVM_ASSERTIONS" = "1" ]; then
-    RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --disable-llvm-assertions"
-  elif [ "$DEPLOY_ALT" != "" ]; then
-    RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-llvm-assertions"
-    RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.verify-llvm-ir"
-  fi
-else
+  # if [ "$NO_LLVM_ASSERTIONS" = "1" ]; then
+  # elif [ "$DEPLOY_ALT" != "" ]; then
+  #   #RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-llvm-assertions"
+  #   #RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.verify-llvm-ir"
+  # fi
+# else
   # We almost always want debug assertions enabled, but sometimes this takes too
   # long for too little benefit, so we just turn them off.
-  if [ "$NO_DEBUG_ASSERTIONS" = "" ]; then
-    RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-debug-assertions"
-  fi
+  # if [ "$NO_DEBUG_ASSERTIONS" = "" ]; then
+  #   #RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-debug-assertions"
+  # fi
+  #
+  # # In general we always want to run tests with LLVM assertions enabled, but not
+  # # all platforms currently support that, so we have an option to disable.
+  # if [ "$NO_LLVM_ASSERTIONS" = "" ]; then
+  #   #RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-llvm-assertions"
+  # fi
 
-  # In general we always want to run tests with LLVM assertions enabled, but not
-  # all platforms currently support that, so we have an option to disable.
-  if [ "$NO_LLVM_ASSERTIONS" = "" ]; then
-    RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --enable-llvm-assertions"
-  fi
-
-  RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.verify-llvm-ir"
+  #RUST_CONFIGURE_ARGS="$RUST_CONFIGURE_ARGS --set rust.verify-llvm-ir"
 fi
 
 if [ "$RUST_RELEASE_CHANNEL" = "nightly" ] || [ "$DIST_REQUIRE_ALL_TOOLS" = "" ]; then
