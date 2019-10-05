@@ -136,7 +136,7 @@ pub trait Visitor<'ast>: Sized {
         match generic_arg {
             GenericArg::Lifetime(lt) => self.visit_lifetime(lt),
             GenericArg::Type(ty) => self.visit_ty(ty),
-            GenericArg::Const(ct) => self.visit_anon_const(ct),
+            GenericArg::ConstExpr(ct) => self.visit_anon_const(ct),
         }
     }
     fn visit_assoc_ty_constraint(&mut self, constraint: &'ast AssocTyConstraint) {

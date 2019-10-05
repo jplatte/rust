@@ -709,7 +709,7 @@ impl<'a> Visitor<'a> for AstValidator<'a> {
                         (match arg {
                             GenericArg::Lifetime(..) => ParamKindOrd::Lifetime,
                             GenericArg::Type(..) => ParamKindOrd::Type,
-                            GenericArg::Const(..) => ParamKindOrd::Const,
+                            GenericArg::ConstExpr(..) => ParamKindOrd::Const,
                         }, None, arg.span(), None)
                     }),
                     GenericPosition::Arg,

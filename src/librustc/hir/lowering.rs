@@ -1143,7 +1143,7 @@ impl<'a> LoweringContext<'a> {
         match arg {
             ast::GenericArg::Lifetime(lt) => GenericArg::Lifetime(self.lower_lifetime(&lt)),
             ast::GenericArg::Type(ty) => GenericArg::Type(self.lower_ty_direct(&ty, itctx)),
-            ast::GenericArg::Const(ct) => {
+            ast::GenericArg::ConstExpr(ct) => {
                 GenericArg::Const(ConstArg {
                     value: self.lower_anon_const(&ct),
                     span: ct.value.span,
@@ -1991,7 +1991,7 @@ impl<'a> LoweringContext<'a> {
         let has_non_lt_args = args.iter().any(|arg| match arg {
             ast::GenericArg::Lifetime(_) => false,
             ast::GenericArg::Type(_) => true,
-            ast::GenericArg::Const(_) => true,
+            ast::GenericArg::ConstExpr(_) => true,
         });
         (
             hir::GenericArgs {

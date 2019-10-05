@@ -179,7 +179,7 @@ impl<'a> Ty<'a> {
                         GenericArg::Type(cx.ty_ident(span, param.ident))
                     }
                     GenericParamKind::Const { .. } => {
-                        GenericArg::Const(cx.const_ident(span, param.ident))
+                        GenericArg::ConstExpr(cx.const_ident(span, param.ident))
                     }
                 }).collect();
 
