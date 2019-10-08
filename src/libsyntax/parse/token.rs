@@ -193,6 +193,14 @@ fn ident_can_begin_type(name: ast::Name, span: Span, is_raw: bool) -> bool {
     ].contains(&name)
 }
 
+fn ident_can_begin_const(name: ast::Name, span: Span, is_raw: bool) -> bool {
+    let ident_token = Token::new(Ident(name, is_raw), span);
+
+    !ident_token.is_reserved_ident() ||
+    ident_token.is_path_segment_keyword()
+    || name == kw::Underscore
+}
+
 #[derive(Clone, PartialEq, RustcEncodable, RustcDecodable, Debug)]
 pub enum TokenKind {
     /* Expression-operator symbols. */
@@ -381,7 +389,11 @@ impl Token {
     /// Returns `true` if the token can appear at the start of a const param.
     crate fn can_begin_const_arg(&self) -> bool {
         match self.kind {
-            OpenDelim(Brace) => true,
+            // named const or underscore
+            Ident(name, is_raw) => ident_can_begin_const(name, self.span, is_raw),
+            OpenDelim(Brace) | // expression
+            Lt | BinOp(Shl)  | // associated path
+            ModSep           => true, // global path
             Interpolated(ref nt) => match **nt {
                 NtExpr(..) => true,
                 NtBlock(..) => true,

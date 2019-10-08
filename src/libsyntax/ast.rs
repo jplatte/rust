@@ -180,6 +180,7 @@ pub enum GenericArg {
     Lifetime(Lifetime),
     Type(P<Ty>),
     ConstExpr(AnonConst),
+    Ident(Ident),
 }
 
 impl GenericArg {
@@ -188,6 +189,7 @@ impl GenericArg {
             GenericArg::Lifetime(lt) => lt.ident.span,
             GenericArg::Type(ty) => ty.span,
             GenericArg::ConstExpr(ct) => ct.value.span,
+            GenericArg::Ident(id) => id.span,
         }
     }
 }

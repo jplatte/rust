@@ -710,6 +710,9 @@ impl<'a> Visitor<'a> for AstValidator<'a> {
                             GenericArg::Lifetime(..) => ParamKindOrd::Lifetime,
                             GenericArg::Type(..) => ParamKindOrd::Type,
                             GenericArg::ConstExpr(..) => ParamKindOrd::Const,
+                            // TODO: What to do here? Why is argument order checked at all, as
+                            // opposed to just checking parameter order?
+                            GenericArg::Ident(..) => ParamKindOrd::Type,
                         }, None, arg.span(), None)
                     }),
                     GenericPosition::Arg,

@@ -413,38 +413,48 @@ impl<'a> Parser<'a> {
                     span,
                 });
                 assoc_ty_constraints.push(span);
-            } else if self.check_const_arg() {
-                // Parse const argument.
-                let expr = if let token::OpenDelim(token::Brace) = self.token.kind {
-                    self.parse_block_expr(
-                        None, self.token.span, BlockCheckMode::Default, ThinVec::new()
-                    )?
-                } else if self.token.is_ident() {
-                    // FIXME(const_generics): to distinguish between idents for types and consts,
-                    // we should introduce a GenericArg::Ident in the AST and distinguish when
-                    // lowering to the HIR. For now, idents for const args are not permitted.
-                    if self.token.is_bool_lit() {
-                        self.parse_literal_maybe_minus()?
-                    } else {
+            } else {
+                match (self.check_const_arg(), self.check_type()) {
+                    (true, false) => {
+                        // Parse const argument.
+                        let expr = if let token::OpenDelim(token::Brace) = self.token.kind {
+                            self.parse_block_expr(
+                                None, self.token.span, BlockCheckMode::Default, ThinVec::new()
+                            )?
+                        } else if self.token.is_ident() {
+                            // FIXME(const_generics): to distinguish between idents for types and consts,
+                            // we should introduce a GenericArg::Ident in the AST and distinguish when
+                            // lowering to the HIR. For now, idents for const args are not permitted.
+                            if self.token.is_bool_lit() {
+                                self.parse_literal_maybe_minus()?
+                            } else {
+                                return Err(
+                                    self.fatal("should be unreachable!")
+                                );
+                            }
+                        } else {
+                            self.parse_literal_maybe_minus()?
+                        };
+                        let value = AnonConst {
+                            id: ast::DUMMY_NODE_ID,
+                            value: expr,
+                        };
+                        args.push(GenericArg::ConstExpr(value));
+                        misplaced_assoc_ty_constraints.append(&mut assoc_ty_constraints);
+                    }
+                    (false, true) => {
+                        // Parse type argument.
+                        args.push(GenericArg::Type(self.parse_ty()?));
+                        misplaced_assoc_ty_constraints.append(&mut assoc_ty_constraints);
+                    }
+                    (true, true) => {
+                        // Parse ident or path or underscore
                         return Err(
                             self.fatal("identifiers may currently not be used for const generics")
                         );
                     }
-                } else {
-                    self.parse_literal_maybe_minus()?
-                };
-                let value = AnonConst {
-                    id: ast::DUMMY_NODE_ID,
-                    value: expr,
-                };
-                args.push(GenericArg::Const(value));
-                misplaced_assoc_ty_constraints.append(&mut assoc_ty_constraints);
-            } else if self.check_type() {
-                // Parse type argument.
-                args.push(GenericArg::Type(self.parse_ty()?));
-                misplaced_assoc_ty_constraints.append(&mut assoc_ty_constraints);
-            } else {
-                break
+                    (false, false) => break,
+                }
             }
 
             if !self.eat(&token::Comma) {

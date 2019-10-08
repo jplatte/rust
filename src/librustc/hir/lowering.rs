@@ -1149,6 +1149,10 @@ impl<'a> LoweringContext<'a> {
                     span: ct.value.span,
                 })
             }
+            ast::GenericArg::Ident(_id) => {
+                // TODO!
+                unimplemented!()
+            }
         }
     }
 
@@ -1992,6 +1996,7 @@ impl<'a> LoweringContext<'a> {
             ast::GenericArg::Lifetime(_) => false,
             ast::GenericArg::Type(_) => true,
             ast::GenericArg::ConstExpr(_) => true,
+            ast::GenericArg::Ident(_) => true,
         });
         (
             hir::GenericArgs {

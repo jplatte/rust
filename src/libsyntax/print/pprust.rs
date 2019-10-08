@@ -964,6 +964,7 @@ impl<'a> State<'a> {
             GenericArg::Lifetime(lt) => self.print_lifetime(*lt),
             GenericArg::Type(ty) => self.print_type(ty),
             GenericArg::ConstExpr(ct) => self.print_expr(&ct.value),
+            GenericArg::Ident(id) => self.print_ident(*id),
         }
     }
 
